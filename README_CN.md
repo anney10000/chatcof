@@ -1,11 +1,14 @@
 # 如何使用
 下载安装Anconda
+
 在Jupyter Lab界面的chatcof文件夹里，创建一个Notebook文件
+
 然后在第一行输入：
 ```
 %run database.py
 ```
 这一步是让jupyter运行我们的cof查询器，并将run函数加载到内存中，便于之后随时调用
+
 然后就可以在第二行运行run函数来获取对应的cof合成物
 
 ## 使用示例
