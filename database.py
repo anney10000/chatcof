@@ -139,7 +139,9 @@ class SynthesisDatabase:
                 f"[^0-9]{temperature}[°℃C]",
                 f"[^0-9]{temperature}c",
                 f"[^0-9]{temperature}C",
-                f"[^0-9]{temperature}度"
+                f"[^0-9]{temperature}度",
+                f"[^0-9]{temperature}摄氏度",
+                f"[^0-9]{temperature}华氏度",
             ])
 
         if time_value:
