@@ -1,11 +1,14 @@
 # How to use
 Download and install Anconda
+
 In the chatcof folder of the Jupyter Lab interface, create a notebook file
+
 Then on the first line, type:
 ```
 %run database.py
 ```
 This step is to have Jupyter run our COF querier and load the run function into memory so that it can be called at any time later
+
 You can then run the run function on the second line to get the corresponding COF composition
 
 ## Usage examples
