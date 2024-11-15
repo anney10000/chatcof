@@ -7,6 +7,8 @@ class SynthesisDatabase:
     def __init__(self):
         self.conn = pymysql.Connect(host="127.0.0.1", port=3306, user='root', password='123456', db='chatcof')
         self.db = self.conn.cursor()
+        self.temp_re = re.compile(r'(\d+)\s*([°℃Cc]|度|摄氏度)')
+        self.time_re = re.compile(r'(\d+)\s*(h|hour|hours|day|days|小时|天)')
 
     def __del__(self):
         self.db.close()
@@ -110,16 +112,17 @@ class SynthesisDatabase:
         :return: Dictionary containing search results
         """
         # Extract temperature (supports ℃, °C, C formats)
-        temp_match = re.search(r'(\d+)\s*[°℃Cc]', keyword)
+        temp_match = self.temp_re.search(keyword)
         temperature = temp_match.group(1) if temp_match else None
 
         # Extract time (supports h, hours, day, days formats)
-        time_match = re.search(r'(\d+)\s*(h|hour|hours|day|days)', keyword)
+        time_match = re.search(r'(\d+)\s*(h|hour|hours|day|days|小时|天)', keyword)
         time_value = time_match.group(1) if time_match else None
         time_unit = time_match.group(2) if time_match else None
+        is_hours = 'h' in time_unit or 'hour' in time_unit or '小时' in time_unit if time_match else None
 
         # Convert hours to days if necessary (72h = 3 days)
-        if time_value and time_unit and ('h' in time_unit or 'hour' in time_unit):
+        if time_value and time_unit and is_hours:
             days_value = str(int(int(time_value) / 24))  # Convert to days
             hours_value = time_value  # Keep original hours value
 
@@ -139,14 +142,12 @@ class SynthesisDatabase:
                 f"[^0-9]{temperature}[°℃C]",
                 f"[^0-9]{temperature}c",
                 f"[^0-9]{temperature}C",
-                f"[^0-9]{temperature}度",
-                f"[^0-9]{temperature}摄氏度",
-                f"[^0-9]{temperature}华氏度",
+                f"[^0-9]{temperature}度"
             ])
 
         if time_value:
             # Search for both days and hours format
-            if time_unit and ('h' in time_unit or 'hour' in time_unit):
+            if time_unit and is_hours:
                 # For hours input, search for exact hour match and corresponding days
                 conditions.append("""
                     (par.content LIKE %s OR par.content LIKE %s OR 
@@ -297,8 +298,8 @@ def run(keyword, sort=2):
     :return:
     """
     # Check if the input contains temperature or time patterns
-    temp_pattern = re.search(r'\d+\s*[°℃C]', keyword)
-    time_pattern = re.search(r'\d+\s*(h|hour|hours|day|days)', keyword)
+    temp_pattern = sd.temp_re.search(keyword)
+    time_pattern = sd.time_re.search(keyword)
 
     if temp_pattern or time_pattern:
         # Use condition-based search
